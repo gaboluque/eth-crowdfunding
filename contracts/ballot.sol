@@ -1,10 +1,11 @@
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.11;
 
 contract Campaign {
     struct Request {
         string description;
         uint value;
-        address recipient;
+        address payable recipient;
         bool complete;
         uint approvalCount;
         mapping(address => bool) approvals;
@@ -14,6 +15,7 @@ contract Campaign {
     address public manager;
     uint public minimumContribution;
     mapping(address => bool) public approvers;
+    uint approversCount;
 
     modifier restricted() {
         require(msg.sender == manager);
@@ -27,10 +29,12 @@ contract Campaign {
 
     function contribute() public payable {
         require(msg.value >= minimumContribution);
+
         approvers[msg.sender] = true;
+        approversCount++;
     }
 
-    function createRequest(string memory description, uint value, address recipient) public restricted {
+    function createRequest(string memory description, uint value, address payable recipient) public restricted {
         Request storage newRequest = requests.push();
 
         newRequest.description = description;
@@ -50,5 +54,14 @@ contract Campaign {
         request.approvalCount ++;
     }
 
+    function finalizeRequest(uint requestIndex) public restricted {
+        Request storage request = requests[requestIndex];
+
+        require(!request.complete);
+        require(request.approvalCount > (approversCount / 2));
+
+        request.recipient.transfer(request.value);
+        request.complete = true;
+    }
 
 }
