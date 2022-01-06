@@ -1,4 +1,5 @@
 import factory from "../ethereum/factory";
+import {Button, Card, CardContent, CardGroup, CardHeader} from "semantic-ui-react";
 
 export async function getServerSideProps(context) {
   const campaigns = await factory.methods.getDeployedCampaigns().call();
@@ -11,10 +12,23 @@ export async function getServerSideProps(context) {
 }
 
 const NewCampaignPage = ({ campaigns }) => {
-  console.log(campaigns);
+
+  const renderCampaigns = () => {
+    const items = campaigns.map((address) =>( {
+      header: address,
+      description: <a>View Campaign</a>,
+      fluid: true
+    }));
+
+    return <CardGroup items={items} />
+  }
 
   return (
-    <div>Index</div>
+    <div>
+      <h3>Open campaigns</h3>
+      <Button floated="right" content="Create campaign" icon="add" primary />
+      {renderCampaigns()}
+    </div>
   )
 }
 
