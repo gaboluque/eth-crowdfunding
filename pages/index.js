@@ -1,5 +1,7 @@
 import factory from "../ethereum/factory";
 import {Button, Card, CardContent, CardGroup, CardHeader} from "semantic-ui-react";
+import {useRouter} from "next/router";
+import Link from "next/link";
 
 export async function getServerSideProps(context) {
   const campaigns = await factory.methods.getDeployedCampaigns().call();
@@ -11,12 +13,17 @@ export async function getServerSideProps(context) {
   }
 }
 
-const NewCampaignPage = ({ campaigns }) => {
+const CampaignsPage = ({ campaigns }) => {
+  const router = useRouter();
+
+  const goToNewCampaign = () => {
+    router.push("/campaigns/new");
+  }
 
   const renderCampaigns = () => {
     const items = campaigns.map((address) =>( {
       header: address,
-      description: <a>View Campaign</a>,
+      description: <Link href={`campaigns/${address}`}>View Campaign</Link>,
       fluid: true
     }));
 
@@ -26,10 +33,10 @@ const NewCampaignPage = ({ campaigns }) => {
   return (
     <div>
       <h3>Open campaigns</h3>
-      <Button floated="right" content="Create campaign" icon="add" primary />
+      <Button floated="right" content="Create campaign" icon="add" primary onClick={goToNewCampaign} />
       {renderCampaigns()}
     </div>
   )
 }
 
-export default NewCampaignPage;
+export default CampaignsPage;
